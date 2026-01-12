@@ -239,3 +239,15 @@ h3 {
     color: var(--muted);
     max-width: 70ch;
 }
+
+/* Highlight Donate link in nav */
+.nav-links a.donate {
+    background: linear-gradient( 135deg, rgba(32,80,64,0.95), rgba(96,144,176,0.95) );
+    color: #ffffff;
+    font-weight: 800;
+}
+
+    .nav-links a.donate:hover {
+        text-decoration: none;
+        box-shadow: 0 6px 18px rgba(16,32,22,0.25);
+    }
