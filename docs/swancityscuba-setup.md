@@ -62,13 +62,13 @@ Each redemption shows up in Stripe (and in your new-enrollment email) with the c
    - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
    - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`
    - `ENROLLMENT_SECRET`: a long random string (`openssl rand -hex 32`). **Never change it after launch**, or existing scheduling links break.
-   - `INSTRUCTOR_EMAIL`: where new-enrollment notices go
+   - `INSTRUCTOR_EMAIL`: where new-enrollment notices go, and the reply-to on student emails (`info@cesi.earth`)
    - `RESEND_API_KEY`, `EMAIL_FROM` (optional, see below)
 3. Redeploy. Enrollments are stored in Netlify Blobs automatically; nothing to set up.
 
 ## 4. Email (optional but recommended)
 
-Verify the cesi.earth domain in Resend and send from an address like `dive@cesi.earth`. Without Resend, students see their scheduling link on the page after paying, get Stripe's receipt, and get Google Calendar invites, but no welcome email with the link. To add it: sign up at <https://resend.com>, verify cesi.earth, and set `RESEND_API_KEY` and `EMAIL_FROM`.
+Verify the cesi.earth domain in Resend and send from `info@cesi.earth`. Without Resend, students see their scheduling link on the page after paying, get Stripe's receipt, and get Google Calendar invites, but no welcome email with the link. To add it: sign up at <https://resend.com>, verify cesi.earth, and set `RESEND_API_KEY` and `EMAIL_FROM`.
 
 ## 5. Test before going live
 

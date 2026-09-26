@@ -127,7 +127,7 @@ export async function book(e: Enrollment, sessionKey: string, start: string): Pr
 export async function sendEnrollmentEmails(e: Enrollment) {
   const { course, diveSite } = context(e);
   const link = scheduleUrl(e);
-  const instructorEmail = optionalEnv('INSTRUCTOR_EMAIL');
+  const instructorEmail = optionalEnv('INSTRUCTOR_EMAIL') ?? (site.contact.email || undefined);
   await sendEmail({
     to: e.email,
     replyTo: instructorEmail,

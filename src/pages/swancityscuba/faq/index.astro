@@ -30,7 +30,7 @@ const faqs: { q: string; a: string }[] = [
                     <p class="small">{f.a}</p>
                 </details>
             ))}
-            <p class="small" style="margin-top:20px;">Something else? See our <a href={`${site.basePath}/policies/`}>policies</a> or <a href="/contact.html">contact us</a>.</p>
+            <p class="small" style="margin-top:20px;">Something else? See our <a href={`${site.basePath}/policies/`}>policies</a> or email <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.</p>
         </div>
     </section>
 </Program>

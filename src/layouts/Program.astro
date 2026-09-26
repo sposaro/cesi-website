@@ -50,6 +50,7 @@ const links: { key: ProgramNav; href: string; label: string }[] = [
                     education, and sustainability through exploration, research, restoration, and stewardship. Instruction is led by founder {site.instructor.name},
                     who takes no salary from the program. Tuition covers the cost of instruction.
                 </p>
+                {site.contact.email && <p class="small" style="margin:10px 0 0;">Program questions: <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>{site.contact.phone && <> · <a href={`tel:${site.contact.phone}`}>{site.contact.phone}</a></>}</p>}
                 <div class="cta-row">
                     <a class="btn" href="/about.html">About CESI</a>
                     <a class="btn" href="/#programs">Our mission &amp; programs</a>

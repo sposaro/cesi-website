@@ -34,6 +34,7 @@ import { site } from '../../../config/site';
 
       <div class="card still small bring">
         <strong>What to bring:</strong> your own mask, fins and snorkel, a swimsuit, a towel, water and a snack. Complete the diver medical questionnaire before your first pool day.
+        {site.contact.email && <> Questions or need to change a date? Email <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.</>}
       </div>
     </div>
   </section>
@@ -119,7 +120,7 @@ import { site } from '../../../config/site';
     if (!res.ok) return void (errorEl.textContent = body.error ?? 'Could not load availability.');
     const slots = body.slots as Slot[];
     if (!slots.length) {
-      $('dates').replaceChildren(el('p', { className: 'small' }, 'No open dates right now. Please get in touch and we’ll find a time.'));
+      $('dates').replaceChildren(el('p', { className: 'small' }, 'No open dates right now. Please email us and we’ll find a time.'));
       return;
     }
     const byDay = new Map<string, Slot[]>();

@@ -22,7 +22,7 @@ export const site = {
   },
   // Shown on program pages. Leave blank to hide.
   contact: {
-    email: '', // e.g. 'dive@cesi.earth' once the mailbox exists
+    email: 'info@cesi.earth',
     phone: '',
   },
   timeZone: 'America/New_York',
