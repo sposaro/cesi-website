@@ -82,7 +82,7 @@ Then swap in live Stripe keys and a live webhook.
 
 ## Things to fill in
 
-- `src/config/site.ts`: contact email/phone, Scuba Etc street address, prices for springs and southeast Florida, a link to the medical questionnaire PDF.
+- `src/config/site.ts`: program contact email/phone and a link to the medical questionnaire PDF. To offer another open water site later (e.g. Florida springs), add it to `diveSites` with a price.
 - `src/data/courses.ts`: price for the PADI AWARE Specialist add-on (`pricePerStudent`), to sell it online.
 - Photos in general: the site is built to look fine without them, but real photos of you teaching and of Lake Denton will help most.
 

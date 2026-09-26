@@ -30,19 +30,29 @@ const addOns = (course.addOns ?? []).map((a) => ({ id: a.id, price: a.pricePerSt
           <p class="small" id="format-note">Private, one-on-one: {formatUsd(course.pricing.privatePrice)}</p>
         </div>
 
+        {diveSites.length > 1 ? (
         <fieldset class="field">
-          <legend>Where do you want to do your open water dives?</legend>
-          {diveSites.map((d, i) => (
-            <label class="choice">
-              <input type="radio" name="diveSiteId" value={d.id} checked={i === 0} disabled={d.surchargePerStudent === null} />
-              <span>
-                <strong>{d.name} · {d.surchargePerStudent === 0 ? 'included in tuition' : d.surchargePerStudent ? `+${formatUsd(d.surchargePerStudent)} per student` : 'contact us to book'}</strong>
-                <span class="small">{d.description}</span>
-                {d.siteFeeNote && <span class="small"><strong>Plus:</strong> {d.siteFeeNote}</span>}
-              </span>
-            </label>
-          ))}
-        </fieldset>
+            <legend>Where do you want to do your open water dives?</legend>
+            {diveSites.map((d, i) => (
+              <label class="choice">
+                <input type="radio" name="diveSiteId" value={d.id} checked={i === 0} disabled={d.surchargePerStudent === null} />
+                <span>
+                  <strong>{d.name} · {d.surchargePerStudent === 0 ? 'included in tuition' : d.surchargePerStudent ? `+${formatUsd(d.surchargePerStudent)} per student` : 'contact us to book'}</strong>
+                  <span class="small">{d.description}</span>
+                  {d.siteFeeNote && <span class="small"><strong>Plus:</strong> {d.siteFeeNote}</span>}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        ) : (
+          <div class="field">
+            <input type="hidden" name="diveSiteId" value={diveSites[0].id} />
+            <p class="notice">
+              <strong>Open water dives: {diveSites[0].name}</strong> (included in tuition)<br />
+              <span class="small">{diveSites[0].description}{diveSites[0].siteFeeNote && <> <strong>Plus:</strong> {diveSites[0].siteFeeNote}</>}</span>
+            </p>
+          </div>
+        )}
 
         {course.addOns?.length ? (
           <fieldset class="field">
@@ -114,7 +124,7 @@ const addOns = (course.addOns ?? []).map((a) => ({ id: a.id, price: a.pricePerSt
   function render() {
     out.value = String(students);
     const each = students === 1 ? pricing.private : pricing.group;
-    const siteId = (form.elements.namedItem('diveSiteId') as RadioNodeList).value;
+    const siteId = String(new FormData(form).get('diveSiteId'));
     const surcharge = sites.find((s) => s.id === siteId)?.surcharge ?? 0;
     const chosen = [...form.querySelectorAll<HTMLInputElement>('input[name=addOns]:checked')].map((i) => i.value);
     const addOnTotal = chosen.reduce((sum, id) => sum + (addOnPrices.find((a) => a.id === id)?.price ?? 0), 0);

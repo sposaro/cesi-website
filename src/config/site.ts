@@ -49,6 +49,8 @@ export interface DiveSite {
   siteFeeNote?: string;
 }
 
+// Open water training sites offered at enrollment. To offer another site (e.g. Florida springs),
+// add an entry with its surchargePerStudent; the enrollment form shows a choice once there are two.
 export const diveSites: DiveSite[] = [
   {
     id: 'lake-denton',
@@ -59,26 +61,6 @@ export const diveSites: DiveSite[] = [
     openWaterDayHours: 8,
     openWaterStartTimes: ['07:00', '08:00'],
     siteFeeNote: `$${site.lakeDentonFeePerDay} per day entry fee, paid at the lake.`,
-  },
-  {
-    id: 'florida-springs',
-    name: 'Florida springs',
-    description: 'Finish your certification in crystal-clear spring water. Extra charge for travel time.',
-    address: 'Florida springs (site confirmed with your instructor)',
-    surchargePerStudent: null, // TODO: set price in cents, e.g. 15000 for $150
-    openWaterDayHours: 10,
-    openWaterStartTimes: ['07:00'],
-    siteFeeNote: 'Park or dive-site entry fees are paid directly to the site.',
-  },
-  {
-    id: 'southeast-florida',
-    name: 'Southeast Florida',
-    description: 'Do your checkout dives in the ocean on Florida’s southeast coast. Extra charge for travel time.',
-    address: 'Southeast Florida (site confirmed with your instructor)',
-    surchargePerStudent: null, // TODO: set price in cents
-    openWaterDayHours: 12,
-    openWaterStartTimes: ['06:00'],
-    siteFeeNote: 'Boat or site fees are paid directly to the operator.',
   },
 ];
 

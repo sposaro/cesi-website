@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getCourse } from '../src/data/courses';
+import { diveSites } from '../src/config/site';
 import { OrderError, priceOrder } from '../src/lib/pricing';
 
 describe('priceOrder', () => {
@@ -37,6 +38,11 @@ describe('priceOrder', () => {
   });
 
   it('does not sell sites without a price yet', () => {
-    expect(() => priceOrder({ courseSlug: 'open-water', diveSiteId: 'florida-springs', students: 1 })).toThrow(/Contact us/);
+    diveSites.push({ ...diveSites[0], id: 'unpriced-site', name: 'Unpriced site', surchargePerStudent: null });
+    try {
+      expect(() => priceOrder({ courseSlug: 'open-water', diveSiteId: 'unpriced-site', students: 1 })).toThrow(/Contact us/);
+    } finally {
+      diveSites.pop();
+    }
   });
 });
