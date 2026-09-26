@@ -85,8 +85,8 @@ export const courses: Course[] = [
         id: 'aware-specialist',
         name: 'PADI AWARE Specialist',
         description:
-          'Our recommended add-on. Learn what threatens the underwater places you’re about to explore, and what divers can do about it. It’s the conservation half of the program.',
-        pricePerStudent: null, // TODO: set price in cents to sell online, e.g. 5000 for $50
+          'Our recommended add-on. Learn what threatens the underwater places you’re about to explore, and what divers can do about it. Offered at cost: the fee covers only the PADI certification card, and the instruction is free.',
+        pricePerStudent: 5000, // at cost: PADI certification (PIC) fee
       },
     ],
     includes: [

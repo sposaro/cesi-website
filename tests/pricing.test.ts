@@ -18,19 +18,21 @@ describe('priceOrder', () => {
     expect(() => priceOrder({ courseSlug: 'open-water', diveSiteId: 'nowhere', students: 1 })).toThrow(OrderError);
   });
 
-  it('adds a priced add-on per student', () => {
-    const addOn = getCourse('open-water')!.addOns!.find((a) => a.id === 'aware-specialist')!;
-    const original = addOn.pricePerStudent;
-    addOn.pricePerStudent = 5000;
-    try {
-      expect(priceOrder({ courseSlug: 'open-water', diveSiteId: 'lake-denton', students: 2, addOns: ['aware-specialist'] }).total).toBe(2 * 62500 + 2 * 5000);
-    } finally {
-      addOn.pricePerStudent = original;
-    }
+  it('adds the AWARE add-on per student', () => {
+    expect(priceOrder({ courseSlug: 'open-water', diveSiteId: 'lake-denton', students: 2, addOns: ['aware-specialist'] }).total).toBe(2 * 62500 + 2 * 5000);
+    // Duplicates are only charged once
+    expect(priceOrder({ courseSlug: 'open-water', diveSiteId: 'lake-denton', students: 1, addOns: ['aware-specialist', 'aware-specialist'] }).total).toBe(70000 + 5000);
   });
 
   it('does not sell add-ons without a price yet', () => {
-    expect(() => priceOrder({ courseSlug: 'open-water', diveSiteId: 'lake-denton', students: 1, addOns: ['aware-specialist'] })).toThrow(/Ask your instructor/);
+    const addOn = getCourse('open-water')!.addOns!.find((a) => a.id === 'aware-specialist')!;
+    const original = addOn.pricePerStudent;
+    addOn.pricePerStudent = null;
+    try {
+      expect(() => priceOrder({ courseSlug: 'open-water', diveSiteId: 'lake-denton', students: 1, addOns: ['aware-specialist'] })).toThrow(/Ask your instructor/);
+    } finally {
+      addOn.pricePerStudent = original;
+    }
     expect(() => priceOrder({ courseSlug: 'open-water', diveSiteId: 'lake-denton', students: 1, addOns: ['nope'] })).toThrow(OrderError);
   });
 
