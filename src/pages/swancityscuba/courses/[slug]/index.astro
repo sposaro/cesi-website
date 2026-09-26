@@ -66,6 +66,7 @@ const base = site.basePath;
                                 <h3>{d.name}</h3>
                                 <p class="small">{d.description}</p>
                                 <p class="small"><strong>{d.surchargePerStudent === 0 ? 'Included' : d.surchargePerStudent ? `+${formatUsd(d.surchargePerStudent)} per student` : 'Contact us'}</strong></p>
+                                {d.siteFeeNote && <p class="small">Plus: {d.siteFeeNote}</p>}
                             </div>
                         ))}
                     </div>

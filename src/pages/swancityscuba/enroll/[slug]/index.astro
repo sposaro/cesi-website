@@ -36,8 +36,9 @@ const addOns = (course.addOns ?? []).map((a) => ({ id: a.id, price: a.pricePerSt
             <label class="choice">
               <input type="radio" name="diveSiteId" value={d.id} checked={i === 0} disabled={d.surchargePerStudent === null} />
               <span>
-                <strong>{d.name} · {d.surchargePerStudent === 0 ? 'included' : d.surchargePerStudent ? `+${formatUsd(d.surchargePerStudent)} per student` : 'contact us to book'}</strong>
+                <strong>{d.name} · {d.surchargePerStudent === 0 ? 'included in tuition' : d.surchargePerStudent ? `+${formatUsd(d.surchargePerStudent)} per student` : 'contact us to book'}</strong>
                 <span class="small">{d.description}</span>
+                {d.siteFeeNote && <span class="small"><strong>Plus:</strong> {d.siteFeeNote}</span>}
               </span>
             </label>
           ))}

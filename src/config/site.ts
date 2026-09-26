@@ -29,8 +29,8 @@ export const site = {
   shop: {
     name: 'Scuba Etc',
     city: 'Lakeland, FL',
-    // Street address for calendar invites. Fill in before launch.
-    address: 'Scuba Etc, Lakeland, FL',
+    // Street address for calendar invites.
+    address: 'Scuba Etc, 715 Alicia Rd, Lakeland, FL 33801',
   },
   lakeDentonFeePerDay: 20,
 };
@@ -53,12 +53,12 @@ export const diveSites: DiveSite[] = [
   {
     id: 'lake-denton',
     name: 'Lake Denton',
-    description: 'Clear, calm freshwater training site near Avon Park, about an hour from Lakeland. Included in tuition.',
+    description: 'Clear, calm freshwater training site near Avon Park, about an hour from Lakeland.',
     address: 'Lake Denton, 790 Lake Denton Rd, Avon Park, FL 33825',
     surchargePerStudent: 0,
     openWaterDayHours: 8,
     openWaterStartTimes: ['07:00', '08:00'],
-    siteFeeNote: '$20 per day entry fee, paid directly to the facility.',
+    siteFeeNote: `$${site.lakeDentonFeePerDay} per day entry fee, paid at the lake.`,
   },
   {
     id: 'florida-springs',
