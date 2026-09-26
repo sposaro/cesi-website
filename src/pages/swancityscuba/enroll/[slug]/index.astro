@@ -1,0 +1,166 @@
+---
+import Program from '../../../../layouts/Program.astro';
+import { courses, isBookable, type Course } from '../../../../data/courses';
+import { booking, diveSites, policies, site } from '../../../../config/site';
+import { formatUsd } from '../../../../lib/pricing';
+
+export function getStaticPaths() {
+  return courses.filter(isBookable).map((course) => ({ params: { slug: course.slug }, props: { course } }));
+}
+const { course } = Astro.props as { course: Course & Required<Pick<Course, 'pricing' | 'sessions'>> };
+const pricing = { private: course.pricing.privatePrice, group: course.pricing.groupPricePerStudent, max: booking.maxGroupSize };
+const sites = diveSites.map((d) => ({ id: d.id, surcharge: d.surchargePerStudent }));
+const addOns = (course.addOns ?? []).map((a) => ({ id: a.id, price: a.pricePerStudent }));
+---
+<Program title={`Enroll: ${course.name}`} active="enroll" noindex>
+  <section class="hero">
+    <div class="narrow">
+      <p class="kicker">Enroll</p>
+      <h1>{course.name}</h1>
+      <p class="lede">Pay tuition here, then pick your dates on the next screen.</p>
+
+      <form id="enroll" class="card still" novalidate data-course={course.slug} data-pricing={JSON.stringify(pricing)} data-sites={JSON.stringify(sites)} data-addons={JSON.stringify(addOns)}>
+        <div class="field">
+          <label id="students-label">How many students?</label>
+          <div class="stepper" role="group" aria-labelledby="students-label">
+            <button type="button" data-step="-1" aria-label="Fewer students">−</button>
+            <output id="students" aria-live="polite">1</output>
+            <button type="button" data-step="1" aria-label="More students">+</button>
+          </div>
+          <p class="small" id="format-note">Private, one-on-one: {formatUsd(course.pricing.privatePrice)}</p>
+        </div>
+
+        <fieldset class="field">
+          <legend>Where do you want to do your open water dives?</legend>
+          {diveSites.map((d, i) => (
+            <label class="choice">
+              <input type="radio" name="diveSiteId" value={d.id} checked={i === 0} disabled={d.surchargePerStudent === null} />
+              <span>
+                <strong>{d.name} · {d.surchargePerStudent === 0 ? 'included' : d.surchargePerStudent ? `+${formatUsd(d.surchargePerStudent)} per student` : 'contact us to book'}</strong>
+                <span class="small">{d.description}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+
+        {course.addOns?.length ? (
+          <fieldset class="field">
+            <legend>Recommended add-on</legend>
+            {course.addOns.map((a) => (
+              <label class="choice">
+                <input type="checkbox" name="addOns" value={a.id} disabled={a.pricePerStudent === null} />
+                <span>
+                  <strong>{a.name} · {a.pricePerStudent ? `+${formatUsd(a.pricePerStudent)} per student` : 'ask your instructor to add it'}</strong>
+                  <span class="small">{a.description}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        ) : null}
+
+        <div class="field">
+          <label for="studentName">Your name</label>
+          <input id="studentName" name="studentName" type="text" autocomplete="name" required maxlength="100" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+          <p class="small">Your scheduling link and calendar invites go here.</p>
+        </div>
+        <div class="field" id="others-field" hidden>
+          <label for="otherStudents">Other students’ names</label>
+          <input id="otherStudents" name="otherStudents" type="text" maxlength="400" placeholder="e.g. Sam Rivera, Alex Rivera" />
+        </div>
+
+        <div class="field notice">
+          <strong>Medical:</strong> {policies.medical}
+          {policies.medicalFormUrl && <> <a href={policies.medicalFormUrl} target="_blank" rel="noopener">Read the questionnaire</a>.</>}
+          <label class="check" style="margin-top:10px"><input type="checkbox" name="medicalAcknowledged" required /> I’ve read this and will complete the medical questionnaire before my first water session.</label>
+        </div>
+
+        <div class="field">
+          <label class="check"><input type="checkbox" name="agreedToPolicies" required /> <span>I agree to the <a href="/swancityscuba/policies/" target="_blank">program policies</a>. Tuition is non-refundable.</span></label>
+        </div>
+
+        <div class="alert" id="error" role="alert"></div>
+
+        <div class="total-row">
+          <div><span class="small">Total tuition</span><div class="price" id="total">{formatUsd(course.pricing.privatePrice)}</div></div>
+          <button class="btn primary" type="submit" id="submit">Continue to payment</button>
+        </div>
+        <p class="small">Secure checkout by Stripe. Have an enrollment code? Enter it on the next screen.</p>
+        <p class="small">{policies.tuitionNotDonation}</p>
+      </form>
+    </div>
+  </section>
+</Program>
+
+
+<script>
+  const form = document.getElementById('enroll') as HTMLFormElement;
+  const pricing = JSON.parse(form.dataset.pricing!) as { private: number; group: number; max: number };
+  const sites = JSON.parse(form.dataset.sites!) as { id: string; surcharge: number | null }[];
+  const addOnPrices = JSON.parse(form.dataset.addons!) as { id: string; price: number | null }[];
+  const out = document.getElementById('students') as HTMLOutputElement;
+  const totalEl = document.getElementById('total')!;
+  const note = document.getElementById('format-note')!;
+  const others = document.getElementById('others-field')!;
+  const errorEl = document.getElementById('error')!;
+  const submit = document.getElementById('submit') as HTMLButtonElement;
+  const usd = (c: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: c % 100 ? 2 : 0 }).format(c / 100);
+  let students = 1;
+
+  function render() {
+    out.value = String(students);
+    const each = students === 1 ? pricing.private : pricing.group;
+    const siteId = (form.elements.namedItem('diveSiteId') as RadioNodeList).value;
+    const surcharge = sites.find((s) => s.id === siteId)?.surcharge ?? 0;
+    const chosen = [...form.querySelectorAll<HTMLInputElement>('input[name=addOns]:checked')].map((i) => i.value);
+    const addOnTotal = chosen.reduce((sum, id) => sum + (addOnPrices.find((a) => a.id === id)?.price ?? 0), 0);
+    totalEl.textContent = usd((each + surcharge + addOnTotal) * students);
+    note.textContent = students === 1 ? `Private, one-on-one: ${usd(pricing.private)}` : `Group of ${students}: ${usd(pricing.group)} per student`;
+    others.hidden = students === 1;
+  }
+
+  form.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((b) =>
+    b.addEventListener('click', () => {
+      students = Math.min(pricing.max, Math.max(1, students + Number(b.dataset.step)));
+      render();
+    }),
+  );
+  form.addEventListener('change', render);
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    errorEl.textContent = '';
+    const data = new FormData(form);
+    const payload = {
+      courseSlug: form.dataset.course,
+      students,
+      diveSiteId: data.get('diveSiteId'),
+      studentName: data.get('studentName'),
+      email: data.get('email'),
+      otherStudents: students > 1 ? data.get('otherStudents') : '',
+      addOns: data.getAll('addOns'),
+      medicalAcknowledged: data.get('medicalAcknowledged') === 'on',
+      agreedToPolicies: data.get('agreedToPolicies') === 'on',
+    };
+    if (!payload.studentName || !payload.email) return void (errorEl.textContent = 'Please enter your name and email.');
+    if (!payload.medicalAcknowledged || !payload.agreedToPolicies) return void (errorEl.textContent = 'Please check both boxes to continue.');
+
+    submit.disabled = true;
+    submit.textContent = 'Opening checkout…';
+    try {
+      const res = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
+      const body = await res.json();
+      if (!res.ok || !body.url) throw new Error(body.error || 'Checkout is unavailable right now.');
+      window.location.href = body.url;
+    } catch (e) {
+      errorEl.textContent = (e as Error).message;
+      submit.disabled = false;
+      submit.textContent = 'Continue to payment';
+    }
+  });
+
+  render();
+</script>

@@ -20,3 +20,7 @@ build/
 # Environment files
 .env
 .env.*
+
+# Astro
+.astro/
+.netlify/

@@ -1,0 +1,26 @@
+{
+  "name": "cesi-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx netlify-cli dev",
+    "dev:site": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check && tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "google-auth": "node scripts/google-auth.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^10.7.13",
+    "astro": "^7.3.5",
+    "stripe": "^22.6.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@netlify/functions": "^6.0.0",
+    "@types/node": "^26.6.3",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.2"
+  }
+}

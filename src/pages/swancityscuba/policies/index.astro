@@ -1,0 +1,36 @@
+---
+import Program from '../../../layouts/Program.astro';
+import { org, policies, site } from '../../../config/site';
+---
+<Program title="Program policies" description="Tuition, rescheduling, refund and medical policies for Swan City Scuba, a program of The CESI Project.">
+    <section class="hero">
+        <div class="card still narrow">
+            <p class="kicker">Policies</p>
+            <h1 class="h1">Program policies</h1>
+
+            <h2>Tuition and refunds</h2>
+            <ul class="small">{policies.refund.map((p) => <li>{p}</li>)}</ul>
+
+            <h2>Tuition is not a donation</h2>
+            <p class="small">{policies.tuitionNotDonation} {org.name} is a {org.taxStatus}, EIN {org.ein}. Your tuition receipt comes from Stripe; donation receipts come from Zeffy.</p>
+
+            <h2>Rescheduling</h2>
+            <p class="small">Sessions appear as calendar invites from your instructor. If a session needs to move for weather, conditions or safety, you’ll get an updated invite. To move a session yourself, reply to the invite or get in touch at least 48 hours ahead.</p>
+
+            <h2>Medical</h2>
+            <p class="small">{policies.medical}</p>
+
+            <h2>Enrollment codes</h2>
+            <p class="small">If you paid tuition through a partner, such as a dive shop, you’ll get an enrollment code. Enter it at checkout and you’ll go straight to picking your dates.</p>
+
+            <h2>What you provide</h2>
+            <ul class="small">
+                <li>Your own mask, fins and snorkel</li>
+                <li>Lake Denton entry fee: ${site.lakeDentonFeePerDay} per day, paid directly to the facility</li>
+            </ul>
+
+            <h2>What CESI doesn’t do</h2>
+            <p class="small">CESI does not sell dive equipment or organize recreational dive travel. Trips organized by CESI are educational, cleanup, exploration or documented conservation activities.</p>
+        </div>
+    </section>
+</Program>

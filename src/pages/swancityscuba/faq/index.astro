@@ -1,0 +1,36 @@
+---
+import Program from '../../../layouts/Program.astro';
+import { org, policies, site } from '../../../config/site';
+
+const faqs: { q: string; a: string }[] = [
+  { q: 'Why is a nonprofit teaching scuba?', a: `Swan City Scuba is an educational program of ${org.name}. Our mission is conservation, education and sustainability, and people protect what they understand. Training divers, and teaching them how aquatic ecosystems work, creates more people able to see, record and help restore what’s underwater.` },
+  { q: 'How long does Open Water take?', a: 'Usually four days: two pool days and two open water days. You study the PADI manual at home before and between sessions. You pick the dates, weekdays or weekends.' },
+  { q: 'Do I need to be a strong swimmer?', a: 'You need to be comfortable in the water. On the first pool day you’ll swim 200 meters (or 300 meters with mask, fins and snorkel) without stopping, at any pace and any stroke, and float or tread water for 10 minutes.' },
+  { q: 'How old do you have to be?', a: 'You can start Open Water at age 10. Divers aged 10 to 14 earn the Junior Open Water certification, which can be upgraded at 15. Kids 8 and up can try Bubblemaker in the pool.' },
+  { q: 'What does tuition include?', a: `Your PADI manual, classroom sessions, pool and open water training, all scuba equipment used in training, and your certification. You bring your own mask, fins and snorkel so they fit you properly. Lake Denton charges $${site.lakeDentonFeePerDay} per day at the gate.` },
+  { q: 'What is the PADI AWARE Specialist add-on?', a: 'A short conservation course on the threats facing aquatic ecosystems and what divers can do about them. It isn’t included in tuition, but we recommend it for every student because it’s the heart of what this program is about.' },
+  { q: 'Why a book and a classroom instead of eLearning?', a: 'Because this is an education program. You get a manual you keep and real time with your instructor to ask questions and work through the knowledge reviews together.' },
+  { q: 'Private or group?', a: 'Private is one student with the instructor. Or enroll with up to three friends or family members at the per-student group rate, and train together on the same dates.' },
+  { q: 'Where are the open water dives?', a: 'Lake Denton near Avon Park, a calm freshwater training site about an hour from Lakeland. Open water training in the Florida springs or on the southeast coast is available for an additional charge to cover travel.' },
+  { q: 'Is tuition tax-deductible?', a: `No. ${policies.tuitionNotDonation}` },
+  { q: 'Does CESI sell gear or run dive trips?', a: 'No. CESI doesn’t sell equipment or organize recreational dive travel. Trips organized by CESI are educational, cleanup, exploration or documented conservation activities.' },
+  { q: 'I have a medical condition. Can I dive?', a: `${policies.medical} Conditions like asthma, heart conditions, recent surgery or certain medications usually need a doctor to sign off. Please check before you enroll.` },
+  { q: 'What if the weather is bad?', a: 'Safety comes first. If conditions aren’t right, we reschedule at no charge.' },
+  { q: 'I have an enrollment code. How do I use it?', a: 'Enroll online as usual and enter the code at checkout. It covers your tuition, and you go straight to picking your dates.' },
+];
+---
+<Program title="FAQ" active="faq" description="Common questions about Swan City Scuba, The CESI Project’s scuba education program in Lakeland, FL.">
+    <section class="hero">
+        <div class="card still narrow">
+            <p class="kicker">FAQ</p>
+            <h1 class="h1">Questions, answered</h1>
+            {faqs.map((f) => (
+                <details class="faq">
+                    <summary>{f.q}</summary>
+                    <p class="small">{f.a}</p>
+                </details>
+            ))}
+            <p class="small" style="margin-top:20px;">Something else? See our <a href={`${site.basePath}/policies/`}>policies</a> or <a href="/contact.html">contact us</a>.</p>
+        </div>
+    </section>
+</Program>
