@@ -1,0 +1,3 @@
+# Short link for flyers and social
+/dive      /swancityscuba/  301
+/dive/*    /swancityscuba/:splat  301

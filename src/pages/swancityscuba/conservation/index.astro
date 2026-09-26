@@ -1,0 +1,70 @@
+---
+import Program from '../../../layouts/Program.astro';
+import { courses } from '../../../data/courses';
+import { org, site } from '../../../config/site';
+
+const conservationCourses = courses.filter((c) => c.category === 'conservation');
+---
+<Program title="Conservation" active="conservation"
+    description="How Swan City Scuba connects scuba training to conservation: PADI AWARE education, Dive Against Debris, and CESI cleanup and restoration dives.">
+    <section class="hero">
+        <div class="card still narrow">
+            <p class="kicker">Conservation programming</p>
+            <h1 class="h1">Every diver is a potential steward.</h1>
+            <p class="lede">
+                Certification is the start. Through Swan City Scuba, students learn how aquatic ecosystems work, what threatens them, and
+                how divers can help, then put that into practice on CESI projects.
+            </p>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Conservation courses</h2>
+        <p class="small" style="margin-top:-6px;">Taught by a PADI AWARE, Dive Against Debris and AWARE Coral Reef Conservation instructor.</p>
+        <div class="grid3">
+            {conservationCourses.map((c) => (
+                <div class="card">
+                    <h3>{c.name}</h3>
+                    <p class="small">{c.summary}</p>
+                </div>
+            ))}
+        </div>
+        <p class="notice" style="margin-top:18px;">
+            <strong>We recommend every Open Water student add the PADI AWARE Specialist course.</strong> It turns a certification into an
+            understanding of the environment you’re diving in. <a href={`${site.basePath}/courses/open-water/`}>See Open Water →</a>
+        </p>
+    </section>
+
+    <section class="section">
+        <h2>Putting it into practice</h2>
+        <div class="grid3">
+            <div class="card">
+                <h3>Cleanup dives</h3>
+                <p class="small">Remove debris from lakes, springs and reefs, and log what we find to the PADI AWARE Dive Against Debris database so it informs policy and research.</p>
+            </div>
+            <div class="card">
+                <h3>Invasive species removal</h3>
+                <p class="small">CESI has conducted targeted lionfish removal dives off Florida’s southeast coast to reduce pressure on native reef communities.</p>
+            </div>
+            <div class="card">
+                <h3>Coastal cleanup</h3>
+                <p class="small">CESI organized a community coastal cleanup in Nassau, removing marine debris from shorelines with local volunteers and partners.</p>
+            </div>
+        </div>
+        <p class="small" style="margin-top:14px;">
+            Trips organized by CESI are educational, cleanup, exploration or documented conservation activities. Recreational dive travel is
+            handled by local dive shops, not by CESI.
+        </p>
+    </section>
+
+    <section class="section">
+        <div class="card still">
+            <h2>Get involved</h2>
+            <p class="small">Certified divers, and non-divers who want to help from shore, can volunteer on CESI projects. Supporters can help fund cleanup dives and student training.</p>
+            <div class="cta-row">
+                <a class="btn" href="/contact.html">Volunteer interest</a>
+                <a class="btn primary" href={org.donateUrl} target="_blank" rel="noopener noreferrer">Donate to CESI</a>
+            </div>
+        </div>
+    </section>
+</Program>

@@ -350,3 +350,78 @@ h3 {
         transform: none !important;
     }
 }
+/* Featured program card (home page) */
+.program-feature {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 18px;
+    color: var(--text);
+}
+
+    .program-feature:hover {
+        text-decoration: none;
+    }
+
+    .program-feature svg {
+        flex: none;
+    }
+
+    .program-feature .btn {
+        flex: none;
+        margin-left: auto;
+    }
+
+.program-kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--brand);
+}
+
+@media (max-width: 700px) {
+    .program-feature {
+        flex-wrap: wrap;
+    }
+
+        .program-feature .btn {
+            margin-left: 0;
+        }
+}
+
+/* Let the nav wrap under the brand on small screens */
+@media (max-width: 760px) {
+    .nav-inner {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+
+        .nav-links a {
+            padding: 6px 9px;
+        }
+}
+
+/* Small screens: keep hero cards inside the viewport */
+.hero-grid > * {
+    min-width: 0;
+}
+
+.kv > div {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    .h1 {
+        font-size: 32px;
+    }
+
+    .kv {
+        grid-template-columns: 110px 1fr;
+    }
+}

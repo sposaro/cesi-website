@@ -1,0 +1,208 @@
+---
+import Program from '../../../layouts/Program.astro';
+import { site } from '../../../config/site';
+---
+<Program title="Your schedule" noindex>
+  <section class="hero">
+    <div class="narrow">
+      <div id="welcome" class="notice" hidden>Payment received. Bookmark this page: it’s your private scheduling link. Now pick your dates.</div>
+      <p class="kicker">Your schedule</p>
+      <h1 id="title">Loading…</h1>
+      <p id="subtitle" class="lede"></p>
+      <div class="alert" id="error" role="alert"></div>
+
+      <ol id="sessions" class="sessions"></ol>
+
+      <div id="picker" class="card still" hidden>
+        <h2 id="picker-title"></h2>
+        <p id="picker-desc" class="small"></p>
+        <p class="small">Times are Florida time ({site.timeZone.replace('_', ' ')}). Only days your instructor is free are shown.</p>
+        <div id="dates" class="chips" role="listbox" aria-label="Available dates"></div>
+        <div id="times" class="chips times" role="listbox" aria-label="Available start times"></div>
+        <div class="confirm-row">
+          <p id="choice" class="small" aria-live="polite"></p>
+          <button id="confirm" class="btn primary" disabled>Book this time</button>
+        </div>
+      </div>
+
+      <div id="done" class="card still" hidden>
+        <h2>You’re all scheduled!</h2>
+        <p>Each session is on your calendar as a calendar invite from your instructor. If a date needs to change, just reply to the invite or get in touch at least 48 hours ahead.</p>
+        <p id="makeup" class="small"></p>
+        <p id="fee" class="small"></p>
+      </div>
+
+      <div class="card still small bring">
+        <strong>What to bring:</strong> your own mask, fins and snorkel, a swimsuit, a towel, water and a snack. Complete the diver medical questionnaire before your first pool day.
+        {site.contact.email && <> Questions or need to change a date? Email <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.</>}
+      </div>
+    </div>
+  </section>
+</Program>
+
+<style>
+  .bring { margin-top: 24px; }
+  #welcome { margin-bottom: 24px; }
+</style>
+
+<script>
+  type Session = { key: string; title: string; description: string; kind: string; start: string | null; end: string | null };
+  type View = {
+    course: { name: string; makeupSessions: number };
+    diveSite: { name: string; feeNote: string | null };
+    studentName: string;
+    students: number;
+    sessions: Session[];
+    nextSessionKey: string | null;
+    timeZone: string;
+  };
+  type Slot = { start: string; end: string };
+
+  const params = new URLSearchParams(location.search);
+  const token = params.get('t') ?? '';
+  const $ = (id: string) => document.getElementById(id)!;
+  const errorEl = $('error');
+  let tz = 'America/New_York';
+  let selected: Slot | null = null;
+  let currentKey: string | null = null;
+
+  const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('en-US', { timeZone: tz, ...opts }).format(new Date(iso));
+  const dayKey = (iso: string) => fmt(iso, { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+  if (params.get('welcome')) $('welcome').hidden = false;
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLElementTagNameMap[K]> = {}, ...children: (Node | string)[]) {
+    const node = Object.assign(document.createElement(tag), props);
+    node.append(...children);
+    return node;
+  }
+
+  function renderView(v: View) {
+    tz = v.timeZone;
+    $('title').textContent = v.course.name;
+    $('subtitle').textContent = `${v.studentName}${v.students > 1 ? ` + ${v.students - 1}` : ''} · Open water dives at ${v.diveSite.name}`;
+    const list = $('sessions');
+    list.replaceChildren(
+      ...v.sessions.map((s, i) => {
+        const when = s.start
+          ? `${fmt(s.start, { weekday: 'long', month: 'long', day: 'numeric' })}, ${fmt(s.start, { hour: 'numeric', minute: '2-digit' })} to ${fmt(s.end!, { hour: 'numeric', minute: '2-digit' })}`
+          : s.key === v.nextSessionKey ? 'Pick a date below' : 'Pick after the session before it';
+        const li = el('li', { className: s.start ? 'booked' : s.key === v.nextSessionKey ? 'next' : '' },
+          el('span', { className: 'dot' }, s.start ? '✓' : String(i + 1)),
+          el('div', {}, el('strong', {}, s.title), el('p', { className: 'when' }, when)),
+        );
+        return li;
+      }),
+    );
+
+    currentKey = v.nextSessionKey;
+    const next = v.sessions.find((s) => s.key === v.nextSessionKey);
+    $('picker').hidden = !next;
+    $('done').hidden = Boolean(next);
+    if (next) {
+      $('picker-title').textContent = `Choose a date for ${next.title.toLowerCase()}`;
+      $('picker-desc').textContent = next.description;
+      loadSlots();
+    } else {
+      $('makeup').textContent = v.course.makeupSessions ? `Your course includes ${v.course.makeupSessions} makeup session. Your instructor will schedule it with you if you need it.` : '';
+      $('fee').textContent = v.diveSite.feeNote ? `Open water days: ${v.diveSite.feeNote}` : '';
+    }
+  }
+
+  async function loadSlots() {
+    selected = null;
+    ($('confirm') as HTMLButtonElement).disabled = true;
+    $('choice').textContent = '';
+    $('dates').replaceChildren(el('p', { className: 'small' }, 'Checking the calendar…'));
+    $('times').replaceChildren();
+    const res = await fetch(`/api/availability?t=${encodeURIComponent(token)}`);
+    const body = await res.json();
+    if (!res.ok) return void (errorEl.textContent = body.error ?? 'Could not load availability.');
+    const slots = body.slots as Slot[];
+    if (!slots.length) {
+      $('dates').replaceChildren(el('p', { className: 'small' }, 'No open dates right now. Please email us and we’ll find a time.'));
+      return;
+    }
+    const byDay = new Map<string, Slot[]>();
+    for (const s of slots) byDay.set(dayKey(s.start), [...(byDay.get(dayKey(s.start)) ?? []), s]);
+
+    const dateButtons = [...byDay.values()].map((daySlots) => {
+      const b = el('button', { type: 'button', className: 'chip' },
+        el('small', {}, fmt(daySlots[0].start, { weekday: 'short' })),
+        fmt(daySlots[0].start, { month: 'short', day: 'numeric' }),
+      );
+      b.setAttribute('role', 'option');
+      b.setAttribute('aria-selected', 'false');
+      b.addEventListener('click', () => {
+        dateButtons.forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+        renderTimes(daySlots);
+      });
+      return b;
+    });
+    $('dates').replaceChildren(...dateButtons);
+    dateButtons[0].click();
+  }
+
+  function renderTimes(daySlots: Slot[]) {
+    selected = null;
+    ($('confirm') as HTMLButtonElement).disabled = true;
+    $('choice').textContent = '';
+    const buttons = daySlots.map((s) => {
+      const b = el('button', { type: 'button', className: 'chip' },
+        fmt(s.start, { hour: 'numeric', minute: '2-digit' }),
+        el('small', {}, `until ${fmt(s.end, { hour: 'numeric', minute: '2-digit' })}`),
+      );
+      b.setAttribute('role', 'option');
+      b.setAttribute('aria-selected', 'false');
+      b.addEventListener('click', () => {
+        buttons.forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+        selected = s;
+        $('choice').textContent = `${fmt(s.start, { weekday: 'long', month: 'long', day: 'numeric' })} at ${fmt(s.start, { hour: 'numeric', minute: '2-digit' })}`;
+        ($('confirm') as HTMLButtonElement).disabled = false;
+      });
+      return b;
+    });
+    $('times').replaceChildren(...buttons);
+  }
+
+  $('confirm').addEventListener('click', async () => {
+    if (!selected || !currentKey) return;
+    const btn = $('confirm') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = 'Booking…';
+    errorEl.textContent = '';
+    try {
+      const res = await fetch('/api/book', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ t: token, sessionKey: currentKey, start: selected.start }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        errorEl.textContent = body.error ?? 'Booking failed.';
+        if (res.status === 409) loadSlots();
+        return;
+      }
+      renderView(body as View);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } finally {
+      btn.textContent = 'Book this time';
+    }
+  });
+
+  (async () => {
+    if (!token) {
+      $('title').textContent = 'Link not found';
+      errorEl.textContent = 'Open the scheduling link from your enrollment email.';
+      return;
+    }
+    const res = await fetch(`/api/enrollment?t=${encodeURIComponent(token)}`);
+    const body = await res.json();
+    if (!res.ok) {
+      $('title').textContent = 'Link not found';
+      errorEl.textContent = body.error ?? 'Could not load your enrollment.';
+      return;
+    }
+    renderView(body as View);
+  })();
+</script>

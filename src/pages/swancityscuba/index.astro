@@ -1,0 +1,115 @@
+---
+import Program from '../../layouts/Program.astro';
+import { getCourse } from '../../data/courses';
+import { site } from '../../config/site';
+import { formatUsd } from '../../lib/pricing';
+
+const ow = getCourse('open-water')!;
+const p = ow.pricing!;
+const aware = ow.addOns?.find((a) => a.id === 'aware-specialist');
+---
+<Program title="Scuba education for conservation" active="overview"
+    description="Swan City Scuba is The CESI Project’s scuba education program in Lakeland, Florida: small, instructor-led PADI courses with conservation built in.">
+
+    <section class="program-hero">
+        <div class="card">
+            <p class="kicker">A program of The CESI Project · Lakeland, Florida</p>
+            <h1 class="h1">Learn to dive. Learn to protect what you find.</h1>
+            <p class="lede">
+                Swan City Scuba is The CESI Project’s scuba education program. Students earn their PADI certification in small,
+                instructor-led courses and learn the conservation skills to help protect the underwater places they explore.
+            </p>
+            <div class="cta-row">
+                <a class="btn primary" href={`${site.basePath}/enroll/open-water/`}>Enroll in Open Water</a>
+                <a class="btn" href={`${site.basePath}/courses/open-water/`}>How the course works</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Why a conservation nonprofit teaches scuba</h2>
+        <p class="lede">You can’t protect what you’ve never seen. Every diver we train is another person who understands what’s under the surface and is equipped to help.</p>
+        <div class="grid3">
+            <div class="card">
+                <h3>Education first</h3>
+                <p class="small">Students get the printed PADI manual and real classroom time with their instructor, not only an online module. Classes are one-on-one or small groups of up to four, with time to master every skill.</p>
+            </div>
+            <div class="card">
+                <h3>Conservation built in</h3>
+                <p class="small">Every course connects to the environment students are diving in. We recommend every student add the PADI AWARE Specialist course, and graduates can join CESI cleanup, survey and restoration dives.</p>
+            </div>
+            <div class="card">
+                <h3>Mission, not margin</h3>
+                <p class="small">CESI doesn’t sell dive gear or run recreational trips. Founder {site.instructor.name} takes no salary from the program. Tuition covers the cost of instruction, materials and equipment used in training.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="grid2">
+            <div class="card">
+                <p class="kicker">Start here</p>
+                <h2>PADI Open Water Diver</h2>
+                <p class="small">{ow.summary}</p>
+                <ul class="checklist small">
+                    {ow.includes!.map((i) => <li>{i}</li>)}
+                </ul>
+                <a href={`${site.basePath}/courses/open-water/`}>Full course details →</a>
+            </div>
+            <div class="card">
+                <p class="kicker">Tuition</p>
+                <div class="cta-row" style="gap:28px;margin-top:0;">
+                    <div><div class="price">{formatUsd(p.privatePrice)}</div><div class="small">Private, one student</div></div>
+                    <div><div class="price">{formatUsd(p.groupPricePerStudent)}</div><div class="small">Per student, groups of 2 to 4</div></div>
+                </div>
+                {aware && (
+                    <div class="notice" style="margin-top:16px;">
+                        <span class="tag green">Recommended</span> <strong>{aware.name}</strong><br />
+                        <span class="small">{aware.description} {aware.pricePerStudent ? `Add it at enrollment for ${formatUsd(aware.pricePerStudent)}.` : 'Ask your instructor to add it.'}</span>
+                    </div>
+                )}
+                <ol class="small" style="padding-left:18px;margin:16px 0;">
+                    <li><strong>Enroll online</strong> and pay tuition (or enter your enrollment code).</li>
+                    <li><strong>Pick your dates:</strong> 2 pool days and 2 open water days.</li>
+                    <li><strong>Study</strong> your PADI manual.</li>
+                    <li><strong>Dive and certify,</strong> usually in about four days.</li>
+                </ol>
+                <a class="btn primary" href={`${site.basePath}/enroll/open-water/`}>Enroll now</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>The pathway</h2>
+        <div class="grid3">
+            <div class="card">
+                <span class="tag">1 · Learn</span>
+                <h3 style="margin-top:10px;">Become a diver</h3>
+                <p class="small">PADI Open Water Diver: pool training at {site.shop.name} in Lakeland and open water dives at Lake Denton.</p>
+            </div>
+            <div class="card">
+                <span class="tag">2 · Protect</span>
+                <h3 style="margin-top:10px;">Learn conservation</h3>
+                <p class="small">PADI AWARE Specialist and Dive Against Debris: how aquatic ecosystems work, what threatens them, and how to remove and record debris.</p>
+            </div>
+            <div class="card">
+                <span class="tag">3 · Contribute</span>
+                <h3 style="margin-top:10px;">Dive with CESI</h3>
+                <p class="small">Graduates can volunteer on CESI cleanup, invasive species removal and survey dives. Keep learning with Advanced, Rescue and specialty courses.</p>
+            </div>
+        </div>
+        <p style="margin-top:16px;"><a href={`${site.basePath}/conservation/`}>Conservation programming →</a> · <a href={`${site.basePath}/courses/`}>All courses →</a></p>
+    </section>
+
+    <section class="section">
+        <div class="card">
+            <h2>Your instructor</h2>
+            <p class="small">
+                {site.instructor.name} is the founder and president of The CESI Project and a {site.instructor.title} (#{site.instructor.padiNumber}),
+                with 14 PADI specialty instructor ratings including PADI AWARE, Dive Against Debris and AWARE Coral Reef Conservation.
+                Frank is also an Emergency First Response Instructor, has completed advanced training with Global Underwater Explorers (GUE),
+                and has dived on CESI conservation projects including invasive lionfish removal off Florida’s southeast coast.
+            </p>
+        </div>
+    </section>
+</Program>

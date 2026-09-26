@@ -1,0 +1,62 @@
+---
+// Swan City Scuba section: CESI layout + program sub-navigation and parent-organization footer.
+import Site from './Site.astro';
+import SwanMark from '../components/SwanMark.astro';
+import '../styles/program.css';
+import { org, site } from '../config/site';
+
+export type ProgramNav = 'overview' | 'open-water' | 'courses' | 'conservation' | 'faq' | 'enroll' | null;
+interface Props {
+  title: string;
+  description?: string;
+  active?: ProgramNav;
+  noindex?: boolean;
+}
+const { title, description = `${site.name}, an educational program of ${org.name}. ${site.tagline}.`, active = null, noindex } = Astro.props;
+const base = site.basePath;
+const links: { key: ProgramNav; href: string; label: string }[] = [
+  { key: 'overview', href: `${base}/`, label: 'Overview' },
+  { key: 'open-water', href: `${base}/courses/open-water/`, label: 'Open Water' },
+  { key: 'courses', href: `${base}/courses/`, label: 'Courses' },
+  { key: 'conservation', href: `${base}/conservation/`, label: 'Conservation' },
+  { key: 'faq', href: `${base}/faq/`, label: 'FAQ' },
+];
+---
+<Site title={`${title} — Swan City Scuba · The CESI Project`} description={description} active="dive" noindex={noindex}>
+    <div slot="subnav" class="subnav">
+        <div class="subnav-inner">
+            <a class="program-brand" href={`${base}/`}>
+                <SwanMark size={34} />
+                <span><strong>Swan City Scuba</strong><span class="small">A program of The CESI Project</span></span>
+            </a>
+            <nav aria-label="Swan City Scuba">
+                {links.map((l) => <a href={l.href} class={l.key === active ? 'active' : undefined} aria-current={l.key === active ? 'page' : undefined}>{l.label}</a>)}
+                <a href={`${base}/enroll/open-water/`} class:list={['btn', 'primary', { active: active === 'enroll' }]}>Enroll</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="program">
+        <slot />
+    </div>
+
+    <section class="section program-parent">
+        <div class="card parent-card">
+            <img src="/assets/logo.png" alt="" width="48" height="48">
+            <div>
+                <h3 style="margin:0 0 6px;">A program of The CESI Project</h3>
+                <p class="small" style="margin:0;">
+                    Swan City Scuba is an educational program of The CESI Project, a {org.taxStatus} (EIN {org.ein}) advancing conservation,
+                    education, and sustainability through exploration, research, restoration, and stewardship. Instruction is led by founder {site.instructor.name},
+                    who takes no salary from the program. Tuition covers the cost of instruction.
+                </p>
+                {site.contact.email && <p class="small" style="margin:10px 0 0;">Program questions: <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>{site.contact.phone && <> · <a href={`tel:${site.contact.phone}`}>{site.contact.phone}</a></>}</p>}
+                <div class="cta-row">
+                    <a class="btn" href="/about.html">About CESI</a>
+                    <a class="btn" href="/#programs">Our mission &amp; programs</a>
+                    <a class="btn primary" href={org.donateUrl} target="_blank" rel="noopener noreferrer">Donate</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</Site>

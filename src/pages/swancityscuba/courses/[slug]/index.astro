@@ -1,0 +1,92 @@
+---
+import Program from '../../../../layouts/Program.astro';
+import { courses, isBookable, type Course } from '../../../../data/courses';
+import { diveSites, site } from '../../../../config/site';
+import { formatUsd } from '../../../../lib/pricing';
+
+export function getStaticPaths() {
+  return courses.filter(isBookable).map((course) => ({ params: { slug: course.slug }, props: { course } }));
+}
+const { course } = Astro.props as { course: Course & Required<Pick<Course, 'pricing' | 'sessions'>> };
+const base = site.basePath;
+---
+<Program title={course.name} description={course.summary} active={course.slug === 'open-water' ? 'open-water' : 'courses'}>
+    <section class="hero">
+        <div class="layout-aside">
+            <div>
+                <div class="card still">
+                    <p class="kicker">PADI course</p>
+                    <h1 class="h1">{course.name}</h1>
+                    <p class="lede">{course.summary}</p>
+                </div>
+
+                <section class="section">
+                    <h2>Your schedule</h2>
+                    <p class="small" style="margin-top:-6px;">After you enroll, you pick a date for each session from your instructor’s live calendar. Weekdays and weekends are both available.</p>
+                    <ol class="timeline">
+                        {course.sessions.map((s) => (
+                            <li>
+                                <strong>{s.title}</strong> <span class="tag">{s.kind === 'open-water' ? 'Open water' : `${site.shop.name} pool`}</span>
+                                <p class="small">{s.description}</p>
+                            </li>
+                        ))}
+                    </ol>
+                    {course.makeupSessions ? <p class="notice">Includes {course.makeupSessions} makeup session in case you need extra time. You’ll schedule it with your instructor directly.</p> : null}
+                </section>
+
+                {course.addOns?.map((a) => (
+                    <section class="section">
+                        <div class="card still">
+                            <span class="tag green">Recommended add-on</span>
+                            <h2 style="margin-top:10px;">{a.name}</h2>
+                            <p class="small">{a.description}</p>
+                            <p class="small"><strong>{a.pricePerStudent ? `${formatUsd(a.pricePerStudent)} per student. Add it when you enroll.` : 'Not included in tuition. Ask your instructor to add it to your course.'}</strong></p>
+                        </div>
+                    </section>
+                ))}
+
+                <section class="section">
+                    <div class="grid2">
+                        <div>
+                            <h2>Tuition includes</h2>
+                            <ul class="checklist small">{course.includes?.map((i) => <li>{i}</li>)}</ul>
+                        </div>
+                        <div>
+                            <h2>Not included</h2>
+                            <ul class="checklist dash small">{course.notIncluded?.map((i) => <li>{i}</li>)}</ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>{diveSites.length > 1 ? 'Open water training sites' : 'Open water training site'}</h2>
+                    <div class="grid3">
+                        {diveSites.map((d) => (
+                            <div class="card">
+                                <h3>{d.name}</h3>
+                                <p class="small">{d.description}</p>
+                                <p class="small"><strong>{d.surchargePerStudent === 0 ? 'Included' : d.surchargePerStudent ? `+${formatUsd(d.surchargePerStudent)} per student` : 'Contact us'}</strong></p>
+                                {d.siteFeeNote && <p class="small">Plus: {d.siteFeeNote}</p>}
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Before you start</h2>
+                    <p class="small">{course.prerequisites} Minimum age {course.minAge}. Students aged 10 to 14 earn the Junior Open Water certification. Everyone completes the diver medical questionnaire before getting in the water. See the <a href={`${base}/faq/`}>FAQ</a>.</p>
+                </section>
+            </div>
+
+            <aside class="card still">
+                <p class="kicker">Tuition</p>
+                <div class="price">{formatUsd(course.pricing.privatePrice)}</div>
+                <p class="small">Private, one-on-one</p>
+                <div class="price">{formatUsd(course.pricing.groupPricePerStudent)}</div>
+                <p class="small">Per student when 2 to 4 enroll together</p>
+                <a class="btn primary" style="width:100%;" href={`${base}/enroll/${course.slug}/`}>Enroll and pick dates</a>
+                <p class="small">Have an enrollment code? Enter it at checkout.</p>
+            </aside>
+        </div>
+    </section>
+</Program>

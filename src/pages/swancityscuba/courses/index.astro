@@ -1,0 +1,49 @@
+---
+import Program from '../../../layouts/Program.astro';
+import { categoryLabels, courses, isBookable, type Category } from '../../../data/courses';
+import { site } from '../../../config/site';
+import { formatUsd } from '../../../lib/pricing';
+
+const order: Category[] = ['core', 'conservation', 'specialty', 'first-aid', 'kids'];
+const intro: Record<Category, string> = {
+  core: 'The PADI certification path, from first breath underwater to leading other divers.',
+  conservation: 'Courses that turn divers into informed stewards of aquatic ecosystems.',
+  specialty: 'Continuing education that builds skill, safety and the ability to take part in research and restoration dives.',
+  'first-aid': 'Emergency care skills for divers and non-divers alike.',
+  kids: 'A safe first experience for young people, in the pool.',
+};
+---
+<Program title="Courses" active="courses"
+    description="PADI courses taught through Swan City Scuba, a CESI program: Open Water, Advanced, Rescue, Divemaster, AWARE conservation courses, specialties and EFR.">
+    <section class="hero">
+        <div class="card still">
+            <p class="kicker">Courses</p>
+            <h1 class="h1">Course catalog</h1>
+            <p class="lede">All courses are taught one-on-one or in small groups of up to four. Open Water enrollment is online now. For any other course, email <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a> and we’ll set it up.</p>
+        </div>
+    </section>
+
+    {order.map((cat) => (
+        <section class="section">
+            <h2>{categoryLabels[cat]}</h2>
+            <p class="small" style="margin-top:-6px;">{intro[cat]}</p>
+            <div class="grid3">
+                {courses.filter((c) => c.category === cat).map((c) => (
+                    <div class="card">
+                        <h3>{c.name} {isBookable(c) ? <span class="tag green">Enroll online</span> : null}</h3>
+                        <p class="small">{c.summary}</p>
+                        {(c.minAge || c.prerequisites) && (
+                            <p class="small"><em>{[c.minAge ? `Minimum age ${c.minAge}` : '', c.prerequisites ?? ''].filter(Boolean).join(' · ')}</em></p>
+                        )}
+                        {isBookable(c) && (
+                            <div class="cta-row">
+                                <a class="btn primary" href={`${site.basePath}/enroll/${c.slug}/`}>Enroll · from {formatUsd(c.pricing.groupPricePerStudent)}</a>
+                                <a class="btn" href={`${site.basePath}/courses/${c.slug}/`}>Details</a>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </section>
+    ))}
+</Program>

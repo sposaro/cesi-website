@@ -1,0 +1,46 @@
+---
+import Program from '../../../../layouts/Program.astro';
+---
+<Program title="You're enrolled" active="enroll" noindex>
+  <section class="hero">
+    <div class="narrow">
+      <div class="card still">
+        <p class="kicker">Payment received</p>
+        <h1>You’re enrolled!</h1>
+        <p id="status" class="lede" aria-live="polite">Setting up your schedule…</p>
+        <p id="fallback" class="small" hidden>We’re still confirming your payment. Your scheduling link is also on its way to your email. If it doesn’t arrive in a few minutes, contact us.</p>
+      </div>
+    </div>
+  </section>
+</Program>
+
+<script>
+  const status = document.getElementById('status')!;
+  const fallback = document.getElementById('fallback')!;
+  const sessionId = new URLSearchParams(location.search).get('session_id');
+
+  async function go(attempt = 0): Promise<void> {
+    if (!sessionId) {
+      status.textContent = 'Missing checkout reference.';
+      fallback.hidden = false;
+      return;
+    }
+    try {
+      const res = await fetch(`/api/enrollment?session_id=${encodeURIComponent(sessionId)}`);
+      const body = await res.json();
+      if (res.ok && body.token) {
+        location.replace(`/swancityscuba/schedule/?t=${body.token}&welcome=1`);
+        return;
+      }
+      if (res.status !== 402 || attempt >= 10) throw new Error(body.error);
+    } catch {
+      if (attempt >= 10) {
+        status.textContent = 'Almost there.';
+        fallback.hidden = false;
+        return;
+      }
+    }
+    setTimeout(() => go(attempt + 1), 1500);
+  }
+  go();
+</script>
